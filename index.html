@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Slot Analyzer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #1a1a1a, #000);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #ffcc00;
+      text-shadow: 0 0 10px #ffcc00;
+    }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .slot-card {
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.3s;
+      user-select: none;
+    }
+    .slot-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      display: block;
+    }
+    .slot-card p {
+      margin: 0;
+      padding: 10px;
+      background: #111;
+      font-weight: bold;
+    }
+    .slot-card:hover {
+      transform: scale(1.05);
+      border-color: #ffcc00;
+      box-shadow: 0 0 10px #ffcc00;
+    }
+    button {
+      margin: 10px 5px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background: linear-gradient(90deg, #ff9800, #ffcc00);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 10px rgba(255, 200, 0, 0.7);
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .hidden {
+      display: none;
+    }
+    .loader {
+      border: 6px solid rgba(255, 255, 255, 0.1);
+      border-top: 6px solid #ffcc00;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 30px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 12px;
+      display: inline-block;
+      box-shadow: 0 0 15px rgba(255, 200, 0, 0.3);
+    }
+    img.preview {
+      max-width: 300px;
+      max-height: 200px;
+      margin-top: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ffcc00;
+    }
+    .btn-group {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 Анализатор слотов</h1>
+
+  <!-- Выбор слота -->
+  <div id="slotSelection">
+    <div class="slots-grid" id="slotsGrid">
+      <!-- Слот -->
+      <div class="slot-card" data-name="Gates of Olympus">
+        <img src="1.png" alt="Gates of Olympus" />
+        <p>Gates of Olympus</p>
+      </div>
+      <div class="slot-card" data-name="Zeus vs Hades">
+        <img src="2.png" alt="Zeus vs Hades" />
+        <p>Zeus vs Hades</p>
+      </div>
+      <div class="slot-card" data-name="Sweet Bonanza">
+        <img src="3.png" alt="Sweet Bonanza" />
+        <p>Sweet Bonanza</p>
+      </div>
+      <div class="slot-card" data-name="The Dog House">
+        <img src="4.png" alt="The Dog House" />
+        <p>The Dog House</p>
+      </div>
+      <div class="slot-card" data-name="Sugar Rush">
+        <img src="6.png" alt="Sugar Rush" />
+        <p>Sugar Rush</p>
+      </div>
+      <div class="slot-card" data-name="Wild West Gold">
+        <img src="7.png" alt="Wild West Gold" />
+        <p>Wild West Gold</p>
+      </div>
+      <div class="slot-card" data-name="Starlight Princess">
+        <img src="8.png" alt="Starlight Princess" />
+        <p>Starlight Princess</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Анализ -->
+  <div id="slotAnalysis" class="hidden">
+    <h2 id="selectedSlotName"></h2>
+    <img id="slotImageDisplay" alt="Slot Image" style="max-width: 300px; border-radius: 12px; box-shadow: 0 0 10px #ffcc00;" />
+    
+    <form id="uploadForm">
+      <label style="margin-top:20px; display:block; cursor:pointer; background:#222; padding: 10px; border-radius:8px; max-width: 220px; margin-left:auto; margin-right:auto;">
+        Выбрать скриншот
+        <input type="file" id="slotScreenshot" accept="image/*" style="display:none" required />
+      </label>
+      <img id="screenshotPreview" class="preview hidden" alt="Screenshot Preview" />
+      <br />
+      <button type="submit" disabled id="analyzeBtn">Анализировать</button>
+    </form>
+
+    <div id="loading" class="hidden">
+      <div class="loader"></div>
+      <p>Анализируем…</p>
+    </div>
+
+    <div id="result" class="result hidden"></div>
+
+    <div class="btn-group">
+      <button id="reloadScreenshotBtn" class="hidden">Загрузить новый скрин</button>
+      <button id="backToSlotsBtn">Вернуться к выбору слота</button>
+    </div>
+  </div>
+
+  <script>
+    const slotCards = document.querySelectorAll(".slot-card");
+    const slotSelection = document.getElementById("slotSelection");
+    const slotAnalysis = document.getElementById("slotAnalysis");
+    const selectedSlotName = document.getElementById("selectedSlotName");
+    const slotImageDisplay = document.getElementById("slotImageDisplay");
+    const uploadForm = document.getElementById("uploadForm");
+    const slotScreenshot = document.getElementById("slotScreenshot");
+    const screenshotPreview = document.getElementById("screenshotPreview");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const loading = document.getElementById("loading");
+    const resultDiv = document.getElementById("result");
+    const reloadScreenshotBtn = document.getElementById("reloadScreenshotBtn");
+    const backToSlotsBtn = document.getElementById("backToSlotsBtn");
+
+    let selectedSlot = null;
+
+    slotCards.forEach(card => {
+      card.addEventListener("click", () => {
+        selectedSlot = card.dataset.name;
+        // Показываем анализ, скрываем выбор
+        slotSelection.classList.add("hidden");
+        slotAnalysis.classList.remove("hidden");
+        selectedSlotName.textContent = selectedSlot;
+        slotImageDisplay.src = card.querySelector("img").src;
+        resetAnalysis();
+      });
+    });
+
+    slotScreenshot.addEventListener("change", () => {
+      const file = slotScreenshot.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          screenshotPreview.src = e.target.result;
+          screenshotPreview.classList.remove("hidden");
+          analyzeBtn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        screenshotPreview.src = "";
+        screenshotPreview.classList.add("hidden");
+        analyzeBtn.disabled = true;
+      }
+    });
+
+    uploadForm.addEventListener("submit", e => {
+      e.preventDefault();
+      if (!slotScreenshot.files.length) return;
+
+      analyzeBtn.disabled = true;
+      loading.classList.remove("hidden");
+      resultDiv.classList.add("hidden");
+      reloadScreenshotBtn.classList.add("hidden");
+
+      // Имитация анализа — 2 секунды
+      setTimeout(() => {
+        loading.classList.add("hidden");
+        const chance = (Math.random() * (90 - 80) + 80).toFixed(1);
+        const spins = Math.floor(Math.random() * (40 - 20) + 20);
+
+        resultDiv.innerHTML = `
+          <strong>Слот:</strong> ${selectedSlot}<br />
+          <strong>Шанс бонуски:</strong> ${chance}%<br />
+          <strong>Вращений до бонуски:</strong> ~${spins}
+        `;
+        resultDiv.classList.remove("hidden");
+        reloadScreenshotBtn.classList.remove("hidden");
+      }, 2000);
+    });
+
+    reloadScreenshotBtn.addEventListener("click", () => {
+      resetAnalysis();
+    });
+
+    backToSlotsBtn.addEventListener("click", () => {
+      selectedSlot = null;
+      slotSelection.classList.remove("hidden");
+      slotAnalysis.classList.add("hidden");
+      resetAnalysis();
+    });
+
+    function resetAnalysis() {
+      slotScreenshot.value = "";
+      screenshotPreview.src = "";
+      screenshotPreview.classList.add("hidden");
+      analyzeBtn.disabled = true;
+      loading.classList.add("hidden");
+      resultDiv.classList.add("hidden");
+      reloadScreenshotBtn.classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
