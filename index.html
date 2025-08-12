@@ -2,215 +2,347 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Slot Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Slot Analyzer Pro</title>
   <style>
+    :root {
+      --primary: #ffcc00;
+      --secondary: #ff9800;
+      --dark-bg: #1a1a1a;
+      --darker-bg: #000;
+      --card-bg: #222;
+      --text: #fff;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
-  font-family: 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at center, #1a1a1a, #000);
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  margin: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+      background: radial-gradient(circle at center, var(--dark-bg), var(--darker-bg));
+      color: var(--text);
+      text-align: center;
+      padding: 15px;
+      margin: 0 auto;
+      width: 100%;
+      min-height: 100vh;
+      max-width: 450px;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  width: 450px;       /* фиксированная ширина */
-  height: 800px;      /* фиксированная высота */
-  overflow-y: auto;   /* вертикальный скролл если надо */
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
+    h1 {
+      font-size: 28px;
+      margin: 20px 0;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+      font-weight: 700;
+    }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 15px;
-  color: #ffcc00;
-  text-shadow: 0 0 8px #ffcc00;
-}
+    h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
 
-.slots-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* одна колонка */
-  gap: 12px;
-  margin-bottom: 20px;
-  max-width: 100%;
-}
+    .container {
+      width: 100%;
+      padding: 0 10px;
+    }
 
-.slot-card {
-  background: #222;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: 0.3s;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px;
-}
+    /* Секция выбора слотов */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin: 20px 0;
+      width: 100%;
+    }
 
-.slot-card img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
+    .slot-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 204, 0, 0.2);
+    }
 
-.slot-card p {
-  margin: 0;
-  font-weight: bold;
-  font-size: 18px;
-  color: #ffcc00;
-  text-align: left;
-  flex-grow: 1;
-}
+    .slot-card:active {
+      transform: scale(0.98);
+    }
 
-.slot-card:hover {
-  transform: scale(1.03);
-  border-color: #ffcc00;
-  box-shadow: 0 0 8px #ffcc00;
-}
+    .slot-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(255, 204, 0, 0.3);
+      border-color: var(--primary);
+    }
 
-button {
-  width: 90%;
-  max-width: 300px;
-  margin: 10px auto;
-  padding: 14px 0;
-  border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  outline: none;
-  background: linear-gradient(90deg, #ff9800, #ffcc00);
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 0 12px rgba(255, 200, 0, 0.8);
-  display: block;
-}
+    .slot-card img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
 
-button:hover {
-  transform: scale(1.05);
-}
+    .slot-card p {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+      text-align: left;
+      flex: 1;
+    }
 
-.hidden {
-  display: none;
-}
+    /* Секция анализа */
+    #slotAnalysis {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
 
-.loader {
-  border: 6px solid rgba(255, 255, 255, 0.1);
-  border-top: 6px solid #ffcc00;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 30px auto;
-}
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+    #slotImageDisplay {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin: 15px auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+    }
 
-.result {
-  margin-top: 20px;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
-  border-radius: 12px;
-  display: inline-block;
-  box-shadow: 0 0 15px rgba(255, 200, 0, 0.3);
-  max-width: 90%;
-  word-wrap: break-word;
-}
+    /* Форма загрузки */
+    #uploadForm {
+      margin-top: 20px;
+    }
 
-img.preview,
-#slotImageDisplay {
-  max-width: 100%;
-  height: auto;
-  margin-top: 15px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px #ffcc00;
-}
+    .file-upload-label {
+      display: block;
+      margin: 20px auto;
+      padding: 15px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 0.3s;
+      max-width: 280px;
+      border: 2px dashed rgba(255, 204, 0, 0.3);
+    }
 
-.btn-group {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
+    .file-upload-label:active {
+      transform: scale(0.98);
+    }
 
+    .file-upload-label:hover {
+      background: #333;
+      border-color: var(--primary);
+    }
+
+    #slotScreenshot {
+      display: none;
+    }
+
+    #screenshotPreview {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin: 15px auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+      display: none;
+    }
+
+    /* Кнопки */
+    button {
+      width: 100%;
+      max-width: 400px;
+      margin: 15px auto;
+      padding: 16px 0;
+      border-radius: 12px;
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 200, 0, 0.5);
+      display: block;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(255, 200, 0, 0.7);
+    }
+
+    /* Лоадер */
+    .loader-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin: 30px 0;
+    }
+
+    .loader {
+      border: 8px solid rgba(255, 255, 255, 0.1);
+      border-top: 8px solid var(--primary);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Результаты */
+    .result {
+      display: none;
+      margin: 25px auto;
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 15px rgba(255, 200, 0, 0.3);
+      line-height: 1.6;
+      text-align: left;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .result strong {
+      color: var(--primary);
+    }
+
+    /* Группа кнопок */
+    .btn-group {
+      margin: 25px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Адаптация для маленьких экранов */
+    @media (max-width: 400px) {
+      .slot-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .slot-card img {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      
+      .slot-card p {
+        text-align: center;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      button {
+        font-size: 16px;
+        padding: 14px 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>🎰 Анализатор слотов</h1>
+  <div class="container">
+    <h1>🎰 Анализатор слотов PRO</h1>
 
-  <!-- Выбор слота -->
-  <div id="slotSelection">
-    <div class="slots-grid" id="slotsGrid">
-      <!-- Слот -->
-      <div class="slot-card" data-name="Gates of Olympus">
-        <img src="1.png" alt="Gates of Olympus" />
-        <p>Gates of Olympus</p>
-      </div>
-      <div class="slot-card" data-name="Zeus vs Hades">
-        <img src="2.png" alt="Zeus vs Hades" />
-        <p>Zeus vs Hades</p>
-      </div>
-      <div class="slot-card" data-name="Sweet Bonanza">
-        <img src="3.png" alt="Sweet Bonanza" />
-        <p>Sweet Bonanza</p>
-      </div>
-      <div class="slot-card" data-name="The Dog House">
-        <img src="4.png" alt="The Dog House" />
-        <p>The Dog House</p>
-      </div>
-      <div class="slot-card" data-name="Sugar Rush">
-        <img src="6.png" alt="Sugar Rush" />
-        <p>Sugar Rush</p>
-      </div>
-      <div class="slot-card" data-name="Wild West Gold">
-        <img src="7.png" alt="Wild West Gold" />
-        <p>Wild West Gold</p>
-      </div>
-      <div class="slot-card" data-name="Starlight Princess">
-        <img src="8.png" alt="Starlight Princess" />
-        <p>Starlight Princess</p>
+    <!-- Выбор слота -->
+    <div id="slotSelection">
+      <div class="slots-grid" id="slotsGrid">
+        <div class="slot-card" data-name="Gates of Olympus">
+          <img src="1.png" alt="Gates of Olympus" />
+          <p>Gates of Olympus</p>
+        </div>
+        <div class="slot-card" data-name="Zeus vs Hades">
+          <img src="2.png" alt="Zeus vs Hades" />
+          <p>Zeus vs Hades</p>
+        </div>
+        <div class="slot-card" data-name="Sweet Bonanza">
+          <img src="3.png" alt="Sweet Bonanza" />
+          <p>Sweet Bonanza</p>
+        </div>
+        <div class="slot-card" data-name="The Dog House">
+          <img src="4.png" alt="The Dog House" />
+          <p>The Dog House</p>
+        </div>
+        <div class="slot-card" data-name="Sugar Rush">
+          <img src="6.png" alt="Sugar Rush" />
+          <p>Sugar Rush</p>
+        </div>
+        <div class="slot-card" data-name="Wild West Gold">
+          <img src="7.png" alt="Wild West Gold" />
+          <p>Wild West Gold</p>
+        </div>
+        <div class="slot-card" data-name="Starlight Princess">
+          <img src="8.png" alt="Starlight Princess" />
+          <p>Starlight Princess</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Анализ -->
-  <div id="slotAnalysis" class="hidden">
-    <h2 id="selectedSlotName"></h2>
-    <img id="slotImageDisplay" alt="Slot Image" />
-    
-    <form id="uploadForm">
-      <label style="margin-top:20px; display:block; cursor:pointer; background:#222; padding: 10px; border-radius:8px; max-width: 220px; margin-left:auto; margin-right:auto;">
-        Выбрать скриншот
-        <input type="file" id="slotScreenshot" accept="image/*" style="display:none" required />
-      </label>
-      <img id="screenshotPreview" class="preview hidden" alt="Screenshot Preview" />
-      <br />
-      <button type="submit" disabled id="analyzeBtn">Анализировать</button>
-    </form>
+    <!-- Анализ -->
+    <div id="slotAnalysis">
+      <h2 id="selectedSlotName"></h2>
+      <img id="slotImageDisplay" alt="Изображение слота" />
+      
+      <form id="uploadForm">
+        <label for="slotScreenshot" class="file-upload-label">
+          📁 Выбрать скриншот
+        </label>
+        <input type="file" id="slotScreenshot" accept="image/*" required />
+        <img id="screenshotPreview" alt="Превью скриншота" />
+        <button type="submit" disabled id="analyzeBtn">🔍 Анализировать</button>
+      </form>
 
-    <div id="loading" class="hidden">
-      <div class="loader"></div>
-      <p>Анализируем…</p>
-    </div>
+      <div class="loader-container" id="loading">
+        <div class="loader"></div>
+        <p>Анализируем скриншот...</p>
+      </div>
 
-    <div id="result" class="result hidden"></div>
+      <div id="result" class="result"></div>
 
-    <div class="btn-group">
-      <button id="reloadScreenshotBtn" class="hidden">Загрузить новый скрин</button>
-      <button id="backToSlotsBtn">Вернуться к выбору слота</button>
+      <div class="btn-group">
+        <button id="reloadScreenshotBtn">🔄 Новый скриншот</button>
+        <button id="backToSlotsBtn">← К выбору слотов</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // DOM элементы
     const slotCards = document.querySelectorAll(".slot-card");
     const slotSelection = document.getElementById("slotSelection");
     const slotAnalysis = document.getElementById("slotAnalysis");
@@ -225,79 +357,91 @@ img.preview,
     const reloadScreenshotBtn = document.getElementById("reloadScreenshotBtn");
     const backToSlotsBtn = document.getElementById("backToSlotsBtn");
 
+    // Переменные состояния
     let selectedSlot = null;
 
+    // Выбор слота
     slotCards.forEach(card => {
       card.addEventListener("click", () => {
         selectedSlot = card.dataset.name;
-        slotSelection.classList.add("hidden");
-        slotAnalysis.classList.remove("hidden");
+        slotSelection.style.display = "none";
+        slotAnalysis.style.display = "block";
         selectedSlotName.textContent = selectedSlot;
         slotImageDisplay.src = card.querySelector("img").src;
         resetAnalysis();
       });
     });
 
+    // Загрузка скриншота
     slotScreenshot.addEventListener("change", () => {
       const file = slotScreenshot.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = e => {
           screenshotPreview.src = e.target.result;
-          screenshotPreview.classList.remove("hidden");
+          screenshotPreview.style.display = "block";
           analyzeBtn.disabled = false;
         };
         reader.readAsDataURL(file);
       } else {
         screenshotPreview.src = "";
-        screenshotPreview.classList.add("hidden");
+        screenshotPreview.style.display = "none";
         analyzeBtn.disabled = true;
       }
     });
 
+    // Анализ скриншота
     uploadForm.addEventListener("submit", e => {
       e.preventDefault();
       if (!slotScreenshot.files.length) return;
 
       analyzeBtn.disabled = true;
-      loading.classList.remove("hidden");
-      resultDiv.classList.add("hidden");
-      reloadScreenshotBtn.classList.add("hidden");
+      loading.style.display = "flex";
+      resultDiv.style.display = "none";
+      reloadScreenshotBtn.style.display = "none";
 
+      // Имитация анализа (в реальном приложении здесь будет AJAX запрос)
       setTimeout(() => {
-        loading.classList.add("hidden");
+        loading.style.display = "none";
+        
+        // Генерация случайных результатов
         const chance = (Math.random() * (90 - 70) + 70).toFixed(1);
         const spins = Math.floor(Math.random() * (40 - 20) + 20);
+        const volatility = ["Низкая", "Средняя", "Высокая"][Math.floor(Math.random() * 3)];
+        const recommendation = Math.random() > 0.3 ? "Рекомендуем играть" : "Не рекомендуем";
 
         resultDiv.innerHTML = `
-          <strong>Слот:</strong> ${selectedSlot}<br />
-          <strong>Шанс бонуски:</strong> ${chance}%<br />
-          <strong>Вращений до бонуски:</strong> ~${spins}
+          <strong>Слот:</strong> ${selectedSlot}<br /><br />
+          <strong>Вероятность бонуса:</strong> ${chance}%<br />
+          <strong>Вращений до бонуса:</strong> ~${spins}<br />
+          <strong>Волатильность:</strong> ${volatility}<br /><br />
+          <strong>Рекомендация:</strong> ${recommendation}
         `;
-        resultDiv.classList.remove("hidden");
-        reloadScreenshotBtn.classList.remove("hidden");
+        resultDiv.style.display = "block";
+        reloadScreenshotBtn.style.display = "block";
       }, 2000);
     });
 
-    reloadScreenshotBtn.addEventListener("click", () => {
-      resetAnalysis();
-    });
+    // Перезагрузка скриншота
+    reloadScreenshotBtn.addEventListener("click", resetAnalysis);
 
+    // Возврат к выбору слотов
     backToSlotsBtn.addEventListener("click", () => {
       selectedSlot = null;
-      slotSelection.classList.remove("hidden");
-      slotAnalysis.classList.add("hidden");
+      slotSelection.style.display = "block";
+      slotAnalysis.style.display = "none";
       resetAnalysis();
     });
 
+    // Сброс анализа
     function resetAnalysis() {
       slotScreenshot.value = "";
       screenshotPreview.src = "";
-      screenshotPreview.classList.add("hidden");
+      screenshotPreview.style.display = "none";
       analyzeBtn.disabled = true;
-      loading.classList.add("hidden");
-      resultDiv.classList.add("hidden");
-      reloadScreenshotBtn.classList.add("hidden");
+      loading.style.display = "none";
+      resultDiv.style.display = "none";
+      reloadScreenshotBtn.style.display = "none";
     }
   </script>
 </body>
