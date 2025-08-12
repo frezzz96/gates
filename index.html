@@ -9,7 +9,7 @@
       background: radial-gradient(circle at center, #1a1a1a, #000);
       color: #fff;
       text-align: center;
-      padding: 20px;
+      padding: 20px 10px;
       margin: 0;
     }
     h1 {
@@ -20,12 +20,13 @@
     }
     .slots-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
       margin-bottom: 20px;
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      padding: 0 10px;
     }
     .slot-card {
       background: #222;
@@ -35,18 +36,27 @@
       border: 2px solid transparent;
       transition: 0.3s;
       user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 8px;
     }
     .slot-card img {
       width: 100%;
-      height: 100px;
+      height: 90px;
       object-fit: cover;
       display: block;
+      border-radius: 10px 10px 0 0;
     }
     .slot-card p {
-      margin: 0;
-      padding: 10px;
-      background: #111;
+      margin: 8px 0 0 0;
+      padding: 0 5px;
+      background: transparent;
       font-weight: bold;
+      font-size: 14px;
+      color: #ffcc00;
+      text-shadow: 0 0 5px #ffcc00;
+      word-break: break-word;
     }
     .slot-card:hover {
       transform: scale(1.05);
@@ -66,6 +76,7 @@
       cursor: pointer;
       transition: 0.3s;
       box-shadow: 0 0 10px rgba(255, 200, 0, 0.7);
+      min-width: 150px;
     }
     button:hover {
       transform: scale(1.05);
@@ -94,16 +105,73 @@
       border-radius: 12px;
       display: inline-block;
       box-shadow: 0 0 15px rgba(255, 200, 0, 0.3);
+      max-width: 90vw;
+      word-wrap: break-word;
     }
     img.preview {
-      max-width: 300px;
+      max-width: 90vw;
       max-height: 200px;
       margin-top: 15px;
       border-radius: 12px;
       box-shadow: 0 0 10px #ffcc00;
     }
+    #slotImageDisplay {
+      max-width: 90vw;
+      max-height: 200px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ffcc00;
+      margin: 0 auto 15px auto;
+      display: block;
+    }
     .btn-group {
       margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 10px;
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width: 480px) {
+      body {
+        padding: 15px 8px;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+      .slots-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 10px;
+        max-width: 100%;
+        padding: 0 5px;
+      }
+      .slot-card img {
+        height: 80px;
+      }
+      .slot-card p {
+        font-size: 13px;
+        padding: 0 3px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px 14px;
+        min-width: 120px;
+      }
+      .result {
+        font-size: 16px;
+        padding: 12px;
+        max-width: 100%;
+      }
+      img.preview,
+      #slotImageDisplay {
+        max-width: 100%;
+        max-height: 150px;
+      }
+      .btn-group {
+        gap: 8px;
+      }
     }
   </style>
 </head>
@@ -148,7 +216,7 @@
   <!-- Анализ -->
   <div id="slotAnalysis" class="hidden">
     <h2 id="selectedSlotName"></h2>
-    <img id="slotImageDisplay" alt="Slot Image" style="max-width: 300px; border-radius: 12px; box-shadow: 0 0 10px #ffcc00;" />
+    <img id="slotImageDisplay" alt="Slot Image" />
     
     <form id="uploadForm">
       <label style="margin-top:20px; display:block; cursor:pointer; background:#222; padding: 10px; border-radius:8px; max-width: 220px; margin-left:auto; margin-right:auto;">
@@ -193,7 +261,6 @@
     slotCards.forEach(card => {
       card.addEventListener("click", () => {
         selectedSlot = card.dataset.name;
-        // Показываем анализ, скрываем выбор
         slotSelection.classList.add("hidden");
         slotAnalysis.classList.remove("hidden");
         selectedSlotName.textContent = selectedSlot;
@@ -228,10 +295,9 @@
       resultDiv.classList.add("hidden");
       reloadScreenshotBtn.classList.add("hidden");
 
-      // Имитация анализа — 2 секунды
       setTimeout(() => {
         loading.classList.add("hidden");
-        const chance = (Math.random() * (90 - 80) + 80).toFixed(1);
+        const chance = (Math.random() * (90 - 70) + 70).toFixed(1);
         const spins = Math.floor(Math.random() * (40 - 20) + 20);
 
         resultDiv.innerHTML = `
