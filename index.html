@@ -405,7 +405,7 @@
         
         // Генерация случайных результатов
         const chance = (Math.random() * (90 - 70) + 70).toFixed(1);
-        const spins = Math.floor(Math.random() * (40 - 20) + 20);
+        const spins = Math.floor(Math.random() * (50 - 25 + 1) + 25);
         const volatility = ["Низкая", "Средняя", "Высокая"][Math.floor(Math.random() * 3)];
         const recommendation = Math.random() > 0.3 ? "Рекомендуем играть" : "Не рекомендуем";
 
